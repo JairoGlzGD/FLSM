@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subneteo FLSM — Aprende a dividir redes IP</title>
+    <meta name="description" content="Guía interactiva para aprender el subneteo FLSM paso a paso: cálculo de subredes, máscaras, hosts y broadcast.">
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+    <!-- ===== CABECERA ===== -->
+    <header class="cabecera" id="inicio">
+        <div class="cabecera-interior">
+            <div class="logo">
+                <span class="logo-icono">🌐</span>
+                <span class="logo-texto">FLSM<span class="logo-sub">paso a paso</span></span>
+            </div>
+            <nav class="nav-principal" id="navPrincipal">
+                <a href="#conceptos" class="nav-link">Conceptos</a>
+                <a href="#guia" class="nav-link">Guía</a>
+                <a href="#calculadora" class="nav-link">Calculadora</a>
+                <a href="#tabla" class="nav-link">Tabla</a>
+                <a href="#errores" class="nav-link">Errores</a>
+                <a href="#practica" class="nav-link">Práctica</a>
+                <a href="#fuentes" class="nav-link">Fuentes</a>
+            </nav>
+            <button class="hamburguesa" id="btnHamburguesa" aria-label="Abrir menú" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="hero-contenido">
+            <span class="hero-etiqueta">Redes · Nivel Intermedio</span>
+            <h1>Domina el <span class="acento">Subneteo FLSM</span></h1>
+            <p class="hero-subtitulo">Aprende a dividir redes IP con Máscara de Subred de Longitud Fija en cinco pasos claros, con ejemplos, tabla y práctica interactiva.</p>
+            <div class="hero-botones">
+                <a href="#guia" class="btn btn-primario">Comenzar la guía ↓</a>
+                <a href="#calculadora" class="btn btn-secundario">Abrir calculadora</a>
+            </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+            <div class="red-visual">
+                <div class="bloque-ip">
+                    <span class="ip-parte red-bits">192.168.5</span>
+                    <span class="ip-separador">.</span>
+                    <span class="ip-parte host-bits">0</span>
+                    <span class="ip-mascara">/24</span>
+                </div>
+                <div class="flecha-division">▼ FLSM /27</div>
+                <div class="subredes-visual">
+                    <div class="subred-chip">.0/27</div>
+                    <div class="subred-chip">.32/27</div>
+                    <div class="subred-chip">.64/27</div>
+                    <div class="subred-chip">…</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== DISTRIBUCIÓN PRINCIPAL ===== -->
+    <div class="distribucion">
+
+        <!-- Índice lateral -->
+        <aside class="indice" id="indice">
+            <p class="indice-titulo">📋 Contenido</p>
+            <nav>
+                <ul class="indice-lista">
+                    <li><a href="#conceptos" class="indice-link">🔑 Conceptos básicos</a></li>
+                    <li><a href="#guia" class="indice-link">📐 Guía de 5 pasos</a></li>
+                    <li><a href="#calculadora" class="indice-link">🧮 Calculadora FLSM</a></li>
+                    <li><a href="#tabla" class="indice-link">📊 Tabla de subredes</a></li>
+                    <li><a href="#errores" class="indice-link">⚠️ Errores frecuentes</a></li>
+                    <li><a href="#practica" class="indice-link">✏️ Cuestionario</a></li>
+                    <li><a href="#fuentes" class="indice-link">📚 Fuentes</a></li>
+                </ul>
+            </nav>
+            <div class="progreso-lectura">
+                <p class="progreso-etiqueta">Progreso de lectura</p>
+                <div class="progreso-barra-contenedor">
+                    <div class="progreso-barra-relleno" id="progresoLectura"></div>
+                </div>
+                <span class="progreso-pct" id="progresoPct">0%</span>
+            </div>
+        </aside>
+
+        <!-- ===== CONTENIDO PRINCIPAL ===== -->
+        <main>
+
+            <!-- CONCEPTOS BÁSICOS -->
+            <section id="conceptos" class="seccion fade-in">
+                <h2 class="titulo-seccion"><span class="titulo-num">01</span>Conceptos Básicos</h2>
+                <p class="parrafo-intro">Antes de calcular, es fundamental dominar estos conceptos:</p>
+                <div class="tarjetas-grid">
+                    <article class="tarjeta">
+                        <div class="tarjeta-icono">📡</div>
+                        <h3>Dirección IP</h3>
+                        <p>Número de 32 bits dividido en 4 octetos que identifica un dispositivo en la red. Se escribe en notación decimal punteada, como <code>192.168.5.10</code>.</p>
+                    </article>
+                    <article class="tarjeta">
+                        <div class="tarjeta-icono">🎭</div>
+                        <h3>Máscara de subred</h3>
+                        <p>Número de 32 bits que separa la porción de red de la porción de host. Los bits en "1" identifican la red; los en "0", los hosts.</p>
+                    </article>
+                    <article class="tarjeta">
+                        <div class="tarjeta-icono">📍</div>
+                        <h3>Notación CIDR</h3>
+                        <p>Forma compacta de expresar la máscara. <code>/24</code> indica que los primeros 24 bits son de red. Equivale a <code>255.255.255.0</code>.</p>
+                    </article>
+                    <article class="tarjeta">
+                        <div class="tarjeta-icono">📢</div>
+                        <h3>Broadcast</h3>
+                        <p>Última dirección de cada subred. Se envía a todos los hosts de esa subred. No puede asignarse a ningún dispositivo individual.</p>
+                    </article>
+                    <article class="tarjeta">
+                        <div class="tarjeta-icono">🔒</div>
+                        <h3>Dirección de red</h3>
+                        <p>Primera dirección de la subred. Identifica a la subred misma y tampoco puede asignarse a hosts. La porción de host es todo ceros.</p>
+                    </article>
+                    <article class="tarjeta tarjeta-destacada">
+                        <div class="tarjeta-icono">⚡</div>
+                        <h3>FLSM</h3>
+                        <p><strong>Fixed Length Subnet Mask</strong>: todas las subredes generadas tienen exactamente la misma máscara y la misma cantidad de hosts. Es el método más sencillo y estructurado.</p>
+                    </article>
+                </div>
+
+                <!-- Diagrama de bits -->
+                <div class="diagrama-bits">
+                    <h3>¿Cómo se divide una dirección IP?</h3>
+                    <div class="bits-visual">
+                        <div class="bits-fila">
+                            <div class="bits-etiqueta">Octeto 1</div>
+                            <div class="bits-grupo red-bits-bg">11000000 <span class="bits-decimal">(192)</span></div>
+                            <div class="bits-etiqueta">Octeto 2</div>
+                            <div class="bits-grupo red-bits-bg">10101000 <span class="bits-decimal">(168)</span></div>
+                            <div class="bits-etiqueta">Octeto 3</div>
+                            <div class="bits-grupo red-bits-bg">00000101 <span class="bits-decimal">(5)</span></div>
+                            <div class="bits-etiqueta">Octeto 4</div>
+                            <div class="bits-grupo host-bits-bg">00000000 <span class="bits-decimal">(0)</span></div>
+                        </div>
+                        <div class="bits-leyenda">
+                            <span class="leyenda-item"><span class="leyenda-cuadro red-bits-bg"></span>Bits de Red (/24)</span>
+                            <span class="leyenda-item"><span class="leyenda-cuadro host-bits-bg"></span>Bits de Host</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GUÍA DE 5 PASOS -->
+            <section id="guia" class="seccion fade-in">
+                <h2 class="titulo-seccion"><span class="titulo-num">02</span>Guía de 5 Pasos FLSM</h2>
+                <div class="problema-info">
+                    <strong>🎯 Problema:</strong> Red <code>192.168.5.0/24</code> — se necesitan <strong>5 subredes</strong> con al menos <strong>30 hosts cada una</strong>.
+                </div>
+
+                <!-- Barra de progreso de pasos -->
+                <div class="pasos-progreso" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="5" aria-label="Paso actual">
+                    <div class="paso-indicador activo" data-step="0">1</div>
+                    <div class="paso-linea"></div>
+                    <div class="paso-indicador" data-step="1">2</div>
+                    <div class="paso-linea"></div>
+                    <div class="paso-indicador" data-step="2">3</div>
+                    <div class="paso-linea"></div>
+                    <div class="paso-indicador" data-step="3">4</div>
+                    <div class="paso-linea"></div>
+                    <div class="paso-indicador" data-step="4">5</div>
+                </div>
+
+                <!-- Paneles de pasos -->
+                <div class="paso-panel activo" id="paso0">
+                    <div class="paso-cabecera">
+                        <span class="paso-numero">Paso 1</span>
+                        <h3>Identificar los datos del problema</h3>
+                    </div>
+                    <div class="paso-cuerpo">
+                        <div class="dato-lista">
+                            <div class="dato-item"><span class="dato-clave">Red original:</span> <code>192.168.5.0</code></div>
+                            <div class="dato-item"><span class="dato-clave">Prefijo:</span> <code>/24</code> → máscara <code>255.255.255.0</code></div>
+                            <div class="dato-item"><span class="dato-clave">Total de IPs disponibles:</span> 2<sup>8</sup> = <strong>256</strong></div>
+                            <div class="dato-item"><span class="dato-clave">Subredes necesarias:</span> <strong>5</strong></div>
+                            <div class="dato-item"><span class="dato-clave">Hosts mínimos por subred:</span> <strong>30</strong></div>
+                        </div>
+                        <div class="paso-nota">
+                            💡 Con <code>/24</code>, el cuarto octeto está completamente disponible para subneteo.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paso-panel" id="paso1">
+                    <div class="paso-cabecera">
+                        <span class="paso-numero">Paso 2</span>
+                        <h3>Calcular los bits de subred (n)</h3>
+                    </div>
+                    <div class="paso-cuerpo">
+                        <p>Aplicamos la fórmula: <strong>2<sup>n</sup> ≥ número de subredes</strong></p>
+                        <div class="formula-tabla">
+                            <div class="formula-fila encabezado">
+                                <span>Bits (n)</span>
+                                <span>2<sup>n</sup></span>
+                                <span>¿Suficiente para 5?</span>
+                            </div>
+                            <div class="formula-fila">
+                                <span>n = 1</span><span>2</span><span class="estado-no">✗ No</span>
+                            </div>
+                            <div class="formula-fila">
+                                <span>n = 2</span><span>4</span><span class="estado-no">✗ No</span>
+                            </div>
+                            <div class="formula-fila resaltada">
+                                <span>n = 3</span><span>8</span><span class="estado-si">✓ Sí</span>
+                            </div>
+                        </div>
+                        <div class="paso-nota">
+                            💡 Con <strong>n = 3</strong> bits obtenemos 8 subredes posibles. Necesitamos 5, quedan 3 de reserva.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paso-panel" id="paso2">
+                    <div class="paso-cabecera">
+                        <span class="paso-numero">Paso 3</span>
+                        <h3>Calcular la nueva máscara</h3>
+                    </div>
+                    <div class="paso-cuerpo">
+                        <div class="calculo-mascara">
+                            <div class="mascara-fila">
+                                <span class="mascara-etiqueta">Prefijo original:</span>
+                                <span class="mascara-valor">/24</span>
+                            </div>
+                            <div class="mascara-fila">
+                                <span class="mascara-etiqueta">+ Bits prestados (n):</span>
+                                <span class="mascara-valor">+ 3</span>
+                            </div>
+                            <div class="mascara-fila mascara-resultado">
+                                <span class="mascara-etiqueta">Nueva máscara:</span>
+                                <span class="mascara-valor resaltado">/27</span>
+                            </div>
+                            <div class="mascara-fila">
+                                <span class="mascara-etiqueta">En decimal:</span>
+                                <span class="mascara-valor"><code>255.255.255.224</code></span>
+                            </div>
+                        </div>
+                        <div class="hosts-calculo">
+                            <p><strong>Hosts por subred:</strong> 2<sup>(32 − 27)</sup> = 2<sup>5</sup> = 32 direcciones</p>
+                            <p class="hosts-utiles">✅ Hosts utilizables = 32 − 2 = <strong>30 hosts</strong> (cumple el requisito)</p>
+                        </div>
+                        <div class="bits-subred-visual">
+                            <div class="bits-fila-mini">
+                                <div class="bits-mini red-bits-bg" title="24 bits originales de red">24 bits de red</div>
+                                <div class="bits-mini prestado-bits-bg" title="3 bits prestados">3 bits</div>
+                                <div class="bits-mini host-bits-bg" title="5 bits para hosts">5 bits de host</div>
+                            </div>
+                            <p class="bits-mini-leyenda">Total: 24 + 3 + 5 = 32 bits</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paso-panel" id="paso3">
+                    <div class="paso-cabecera">
+                        <span class="paso-numero">Paso 4</span>
+                        <h3>Calcular el incremento (salto de red)</h3>
+                    </div>
+                    <div class="paso-cuerpo">
+                        <div class="calculo-salto">
+                            <p>El incremento indica cuánto avanza la dirección de red en cada subred:</p>
+                            <div class="formula-destacada">
+                                Incremento = 256 − valor del último octeto de la máscara<br>
+                                Incremento = 256 − 224 = <strong>32</strong>
+                            </div>
+                        </div>
+                        <p>Las redes saltan de <strong>32 en 32</strong> en el cuarto octeto:</p>
+                        <div class="saltos-visual">
+                            <div class="salto-chip activo">192.168.5.<strong>0</strong></div>
+                            <div class="salto-flecha">+32 →</div>
+                            <div class="salto-chip">192.168.5.<strong>32</strong></div>
+                            <div class="salto-flecha">+32 →</div>
+                            <div class="salto-chip">192.168.5.<strong>64</strong></div>
+                            <div class="salto-flecha">+32 →</div>
+                            <div class="salto-chip">192.168.5.<strong>96</strong></div>
+                            <div class="salto-flecha">… →</div>
+                            <div class="salto-chip">192.168.5.<strong>224</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paso-panel" id="paso4">
+                    <div class="paso-cabecera">
+                        <span class="paso-numero">Paso 5</span>
+                        <h3>Determinar rangos: hosts y broadcast</h3>
+                    </div>
+                    <div class="paso-cuerpo">
+                        <div class="reglas-rangos">
+                            <div class="regla-item">
+                                <span class="regla-icono">🔒</span>
+                                <div><strong>Dirección de red:</strong> el valor de inicio del salto</div>
+                            </div>
+                            <div class="regla-item">
+                                <span class="regla-icono">▶</span>
+                                <div><strong>Primer host:</strong> Dirección de red + 1</div>
+                            </div>
+                            <div class="regla-item">
+                                <span class="regla-icono">◀</span>
+                                <div><strong>Último host:</strong> Broadcast − 1</div>
+                            </div>
+                            <div class="regla-item">
+                                <span class="regla-icono">📢</span>
+                                <div><strong>Broadcast:</strong> (Siguiente red) − 1</div>
+                            </div>
+                        </div>
+                        <div class="ejemplo-rango">
+                            <p><strong>Ejemplo — Primera subred (192.168.5.0/27):</strong></p>
+                            <div class="rango-tabla-mini">
+                                <div class="rango-fila"><span>Red:</span><code>192.168.5.0</code></div>
+                                <div class="rango-fila"><span>Primer host:</span><code>192.168.5.1</code></div>
+                                <div class="rango-fila"><span>Último host:</span><code>192.168.5.30</code></div>
+                                <div class="rango-fila"><span>Broadcast:</span><code>192.168.5.31</code></div>
+                            </div>
+                        </div>
+                        <div class="paso-nota exito">
+                            🎉 ¡Con estos cinco pasos puedes calcular cualquier subneteo FLSM!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controles de navegación -->
+                <div class="controles-pasos">
+                    <button id="btnAnterior" class="btn btn-nav" disabled aria-label="Paso anterior">← Anterior</button>
+                    <span class="paso-contador" id="pasoContador">Paso 1 de 5</span>
+                    <button id="btnSiguiente" class="btn btn-nav" aria-label="Siguiente paso">Siguiente →</button>
+                </div>
+            </section>
+
+            <!-- CALCULADORA -->
+            <section id="calculadora" class="seccion fade-in">
+                <h2 class="titulo-seccion"><span class="titulo-num">03</span>Calculadora FLSM Interactiva</h2>
+                <p class="parrafo-intro">Ingresa tu red y el número de subredes; la calculadora resolverá todo automáticamente.</p>
+
+                <div class="calculadora-form">
+                    <div class="campo-grupo">
+                        <label for="calcRed">Red base (p. ej., 192.168.1.0):</label>
+                        <input type="text" id="calcRed" placeholder="192.168.1.0" value="192.168.1.0" autocomplete="off">
+                    </div>
+                    <div class="campo-grupo">
+                        <label for="calcPrefijo">Prefijo CIDR original (8–30):</label>
+                        <input type="number" id="calcPrefijo" min="8" max="30" value="24" placeholder="/24">
+                    </div>
+                    <div class="campo-grupo">
+                        <label for="calcSubredes">Número de subredes necesarias:</label>
+                        <input type="number" id="calcSubredes" min="2" max="128" value="5" placeholder="5">
+                    </div>
+                    <button class="btn btn-primario" id="btnCalcular">Calcular subredes</button>
+                    <button class="btn btn-secundario" id="btnLimpiarCalc">Limpiar</button>
+                </div>
+
+                <div id="calcResultado" class="calc-resultado" aria-live="polite"></div>
+            </section>
+
+            <!-- TABLA DE SUBREDES -->
+            <section id="tabla" class="seccion fade-in">
+                <h2 class="titulo-seccion"><span class="titulo-num">04</span>Tabla de Subredes del Ejemplo</h2>
+                <p class="parrafo-intro">Red <code>192.168.5.0/24</code> dividida en <strong>8 subredes /27</strong> (se utilizan 5; 3 quedan de reserva):</p>
+                <div class="tabla-contenedor" tabindex="0" role="region" aria-label="Tabla de las ocho subredes; desplazamiento horizontal disponible">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N.°</th>
+                                <th>Dirección de red</th>
+                                <th>Primer host</th>
+                                <th>Último host</th>
+                                <th>Broadcast</th>
+                                <th>Uso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="subred-activa"><td>1</td><td>192.168.5.0/27</td><td>192.168.5.1</td><td>192.168.5.30</td><td>192.168.5.31</td><td><span class="badge badge-uso">En uso</span></td></tr>
+                            <tr class="subred-activa"><td>2</td><td>192.168.5.32/27</td><td>192.168.5.33</td><td>192.168.5.62</td><td>192.168.5.63</td><td><span class="badge badge-uso">En uso</span></td></tr>
+                            <tr class="subred-activa"><td>3</td><td>192.168.5.64/27</td><td>192.168.5.65</td><td>192.168.5.94</td><td>192.168.5.95</td><td><span class="badge badge-uso">En uso</span></td></tr>
+                            <tr class="subred-activa"><td>4</td><td>192.168.5.96/27</td><td>192.168.5.97</td><td>192.168.5.126</td><td>192.168.5.127</td><td><span class="badge badge-uso">En uso</span></td></tr>
+                            <tr class="subred-activa"><td>5</td><td>192.168.5.128/27</td><td>192.168.5.129</td><td>192.168.5.158</td><td>192.168.5.159</td><td><span class="badge badge-uso">En uso</span></td></tr>
+                            <tr class="subred-reserva"><td>6</td><td>192.168.5.160/27</td><td>192.168.5.161</td><td>192.168.5.190</td><td>192.168.5.191</td><td><span class="badge badge-reserva">Reserva</span></td></tr>
+                            <tr class="subred-reserva"><td>7</td><td>192.168.5.192/27</td><td>192.168.5.193</td><td>192.168.5.222</td><td>192.168.5.223</td><td><span class="badge badge-reserva">Reserva</span></td></tr>
+                            <tr class="subred-reserva"><td>8</td><td>192.168.5.224/27</td><td>192.168.5.225</td><td>192.168.5.254</td><td>192.168.5.255</td><td><span class="badge badge-reserva">Reserva</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="tabla-nota">Cada subred tiene 32 direcciones totales: 30 hosts utilizables + dirección de red + broadcast.</p>
+            </section>
+
+            <!-- ERRORES FRECUENTES -->
+            <section id="errores" class="seccion fade-in">
+                <h2 class="titulo-seccion"><span class="titulo-num">05</span>Errores Frecuentes</h2>
+                <div class="errores-grid">
+                    <div class="error-card">
+                        <div class="error-icono">❌</div>
+                        <h3>No restar 2 a las direcciones</h3>
+                        <p>Muchos confunden el total de IPs con los hosts utilizables. Siempre resta la dirección de red y el broadcast: <strong>hosts útiles = 2<sup>n</sup> − 2</strong>.</p>
+                        <div class="error-ejemplo">
+                            <span class="error-mal">❌ /27 tiene 32 hosts</span>
+                            <span class="error-bien">✅ /27 tiene 30 hosts útiles</span>
+                        </div>
+                    </div>
+                    <div class="error-card">
+                        <div class="error-icono">🔢</div>
+                        <h3>Calcular mal el incremento</h3>
+                        <p>El incremento NO se toma del prefijo CIDR directamente. Se calcula como <strong>256 menos el último octeto de la máscara decimal</strong>.</p>
+                        <div class="error-ejemplo">
+                            <span class="error-mal">❌ /27 → incremento 27</span>
+                            <span class="error-bien">✅ 256 − 224 = 32</span>
+                        </div>
+                    </div>
+                    <div class="error-card">
+                        <div class="error-icono">🎯</div>
+                        <h3>Confundir octeto afectado</h3>
+                        <p>El incremento debe aplicarse sobre el octeto que cambia según la nueva máscara. Para /27, el octeto afectado es el 4.°; para /18, el 3.°.</p>
+                    </div>
+                    <div class="error-card">
+                        <div class="error-icono">💡</div>
+                        <h3>n insuficiente para las subredes</h3>
+                        <p>Asegúrate de que 2<sup>n</sup> sea <em>mayor o igual</em> al número de subredes. Con n = 2 obtienes 4, que no es suficiente si necesitas 5 o más.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CUESTIONARIO -->
+            <section id="practica" class="seccion fade-in">
+                <h2 class="titulo-seccion"><span class="titulo-num">06</span>Cuestionario de Práctica</h2>
+                <p class="parrafo-intro">Evalúa lo aprendido. Responde las cinco preguntas y obtendrás retroalimentación detallada.</p>
+
+                <div class="quiz-progreso">
+                    <div class="quiz-progreso-barra" id="quizProgresoBarra"></div>
+                </div>
+                <div class="quiz-puntaje-live" id="quizPuntajeLive">Respondidas: 0 / 5</div>
+
+                <form id="formularioCuestionario" novalidate>
+
+                    <div class="pregunta" id="preg1">
+                        <div class="pregunta-cabecera">
+                            <span class="pregunta-num">1</span>
+                            <p>¿Cuántos bits se necesitan prestar para crear <strong>6 subredes</strong>?</p>
+                        </div>
+                        <div class="opciones">
+                            <label class="opcion"><input type="radio" name="p1" value="a"> 2 bits (2² = 4 subredes)</label>
+                            <label class="opcion"><input type="radio" name="p1" value="b"> 3 bits (2³ = 8 subredes)</label>
+                            <label class="opcion"><input type="radio" name="p1" value="c"> 4 bits (2⁴ = 16 subredes)</label>
+                        </div>
+                    </div>
+
+                    <div class="pregunta" id="preg2">
+                        <div class="pregunta-cabecera">
+                            <span class="pregunta-num">2</span>
+                            <p>Si la nueva máscara es <code>/26</code>, ¿cuántos hosts <strong>útiles</strong> hay por subred?</p>
+                        </div>
+                        <div class="opciones">
+                            <label class="opcion"><input type="radio" name="p2" value="a"> 62 hosts</label>
+                            <label class="opcion"><input type="radio" name="p2" value="b"> 64 hosts</label>
+                            <label class="opcion"><input type="radio" name="p2" value="c"> 30 hosts</label>
+                        </div>
+                    </div>
+
+                    <div class="pregunta" id="preg3">
+                        <div class="pregunta-cabecera">
+                            <span class="pregunta-num">3</span>
+                            <p>¿Cuál es el <strong>salto de red</strong> (incremento) cuando la máscara es <code>255.255.255.192</code>?</p>
+                        </div>
+                        <div class="opciones">
+                            <label class="opcion"><input type="radio" name="p3" value="a"> 32</label>
+                            <label class="opcion"><input type="radio" name="p3" value="b"> 64</label>
+                            <label class="opcion"><input type="radio" name="p3" value="c"> 128</label>
+                        </div>
+                    </div>
+
+                    <div class="pregunta" id="preg4">
+                        <div class="pregunta-cabecera">
+                            <span class="pregunta-num">4</span>
+                            <p>¿Cuál es el <strong>broadcast</strong> de la red <code>192.168.1.0/27</code>?</p>
+                        </div>
+                        <div class="opciones">
+                            <label class="opcion"><input type="radio" name="p4" value="a"> 192.168.1.31</label>
+                            <label class="opcion"><input type="radio" name="p4" value="b"> 192.168.1.32</label>
+                            <label class="opcion"><input type="radio" name="p4" value="c"> 192.168.1.63</label>
+                        </div>
+                    </div>
+
+                    <div class="pregunta" id="preg5">
+                        <div class="pregunta-cabecera">
+                            <span class="pregunta-num">5</span>
+                            <p>En FLSM, ¿cómo son las máscaras de todas las subredes generadas?</p>
+                        </div>
+                        <div class="opciones">
+                            <label class="opcion"><input type="radio" name="p5" value="a"> Son todas iguales (misma longitud)</label>
+                            <label class="opcion"><input type="radio" name="p5" value="b"> Varían según la cantidad de hosts de cada subred</label>
+                            <label class="opcion"><input type="radio" name="p5" value="c"> Depende del router configurado</label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-botones">
+                        <button type="button" id="btnVerificar" class="btn btn-primario">✅ Verificar respuestas</button>
+                        <button type="button" id="btnLimpiar" class="btn btn-secundario">🔄 Reiniciar quiz</button>
+                    </div>
+                </form>
+
+                <div id="resultado" role="status" aria-live="polite" class="quiz-resultado"></div>
+            </section>
+
+            <!-- FUENTES -->
+            <section id="fuentes" class="seccion fade-in">
+                <h2 class="titulo-seccion"><span class="titulo-num">07</span>Fuentes y Referencias</h2>
+                <div class="fuentes-grid">
+                    <a href="https://www.rfc-editor.org/rfc/rfc1878.html" target="_blank" rel="noopener" class="fuente-card">
+                        <div class="fuente-tipo">RFC</div>
+                        <h3>RFC 1878</h3>
+                        <p>Variable Length Subnet Table For IPv4. IETF, 1995.</p>
+                    </a>
+                    <a href="https://www.rfc-editor.org/rfc/rfc3021.html" target="_blank" rel="noopener" class="fuente-card">
+                        <div class="fuente-tipo">RFC</div>
+                        <h3>RFC 3021</h3>
+                        <p>Using 31-Bit Prefixes on IPv4 Point-to-Point Links. IETF, 2000.</p>
+                    </a>
+                    <a href="https://www.rfc-editor.org/rfc/rfc950.html" target="_blank" rel="noopener" class="fuente-card">
+                        <div class="fuente-tipo">RFC</div>
+                        <h3>RFC 950</h3>
+                        <p>Internet Standard Subnetting Procedure. IETF, 1985.</p>
+                    </a>
+                    <a href="https://subnetmaster.es/blog/como-aprender-a-dividir-redes-con-el-metodo-flsm/" target="_blank" rel="noopener" class="fuente-card">
+                        <div class="fuente-tipo">Web</div>
+                        <h3>SubnetMaster</h3>
+                        <p>Cómo dividir redes con el método FLSM — guía práctica.</p>
+                    </a>
+                    <a href="https://learningnetwork.cisco.com/s/article/subnetting" target="_blank" rel="noopener" class="fuente-card">
+                        <div class="fuente-tipo">Cisco</div>
+                        <h3>Cisco Learning Network</h3>
+                        <p>Subnetting fundamentals — recursos oficiales de Cisco.</p>
+                    </a>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-interior">
+            <p>🌐 <strong>FLSM Paso a Paso</strong> — Sitio educativo sobre subneteo con máscara fija</p>
+            <p class="footer-creditos">Desarrollado con HTML · CSS · JavaScript | Metodología: Maybel Gil Álvarez</p>
+            <a href="#inicio" class="btn-top">↑ Volver arriba</a>
+        </div>
+    </footer>
+
+    <script src="js/cuestionario.js"></script>
+</body>
+</html>
